@@ -1,6 +1,6 @@
 import bcrypt from 'bcryptjs';
 import { User } from '../model/user.schema.js';
-import { BadRequest, InternalServerError } from '../utils/errors.js';
+import { BadRequest, InternalServerError, NotFountError } from '../utils/errors.js';
 import jwt from '../utils/jwt.js';
 
 const signUp = async (req, res, next) => {
@@ -17,7 +17,7 @@ const signUp = async (req, res, next) => {
 
     newuser.save();
 
-    const token = jwt.sign({ username, email });
+    const token = jwt.sign({ email });
 
     res.status(201).json({ status: 201, message: 'New user created!', token, data: newuser });
   } catch (error) {
@@ -25,4 +25,28 @@ const signUp = async (req, res, next) => {
   }
 };
 
-export default { signUp };
+const login = async (req, res, next) => {
+  try {
+    const { password, email } = req.body;
+
+    const user = await User.findOne({ email: email });
+
+    if (user == null) {
+      return next(new NotFountError(400, 'user not found !'));
+    }
+
+    const hashedPassword = await bcrypt.compare(password, user.password);
+
+    if (!hashedPassword) {
+      return next(new BadRequest(400, 'password does  not match !'));
+    }
+
+    const token = jwt.sign({ email });
+
+    res.status(200).json({ status: 200, message: 'user is found !', token, data: user });
+  } catch (error) {
+    next(new InternalServerError(500, error.message));
+  }
+};
+
+export default { signUp, login };
