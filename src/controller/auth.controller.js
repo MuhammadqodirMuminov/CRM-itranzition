@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import moment from 'moment';
 import { User } from '../model/user.schema.js';
 import { BadRequest, InternalServerError, NotFountError } from '../utils/errors.js';
 import jwt from '../utils/jwt.js';
@@ -13,7 +14,15 @@ const signUp = async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 12);
-    const newuser = new User({ username, password: hashedPassword, email });
+    const createdData = moment(Date.now()).format('LLL');
+    const newuser = new User({
+      username,
+      password: hashedPassword,
+      email,
+      created_At: createdData,
+      status: 'active',
+      login_At: 'null',
+    });
 
     newuser.save();
 
@@ -41,9 +50,13 @@ const login = async (req, res, next) => {
       return next(new BadRequest(400, 'password does  not match !'));
     }
 
+    const userUpdate = await User.findOneAndUpdate(
+      { email: email },
+      { $set: { login_At: `${moment(Date.now()).format('LLL')}` } },
+    );
     const token = jwt.sign({ email });
 
-    res.status(200).json({ status: 200, message: 'user is found !', token, data: user });
+    res.status(200).json({ status: 200, message: 'user is found !', token, data: userUpdate });
   } catch (error) {
     next(new InternalServerError(500, error.message));
   }

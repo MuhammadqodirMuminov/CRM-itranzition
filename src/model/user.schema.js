@@ -13,8 +13,20 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  created_At: {
+    type: String,
+    required: true,
+  },
+  login_At: {
+    type: String,
+    required: true,
+  },
+  status: {
+    type: String,
+    required: true,
+  },
 });
 
 const User = mongoose.model('User', userSchema);
 
-export  { User };
+export { User };
