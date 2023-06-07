@@ -22,6 +22,7 @@ const signUp = async (req, res, next) => {
       created_At: createdData,
       status: 'active',
       login_At: 'null',
+      checked: false,
     });
 
     newuser.save();

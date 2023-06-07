@@ -7,4 +7,6 @@ const router = Router();
 
 router.get('/', checkToken, userController.getUsers);
 
+router.post('/user/:id' ,  userController.postStatus)
+
 export default router;

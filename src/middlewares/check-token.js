@@ -16,7 +16,7 @@ export default async (req, res, next) => {
       if (!checkUser) {
         return next(new ForBiddenError(400, 'token does not much'));
       }
-      req.checkUser = checkUser[0]._id;
+      req.user = checkUser[0];
       next();
     }
   } catch (error) {
